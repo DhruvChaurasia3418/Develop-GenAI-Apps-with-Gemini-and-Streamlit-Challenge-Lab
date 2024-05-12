@@ -14,10 +14,9 @@ from datetime import (
     date,
     timedelta,
 )
-
-# Configure logging
+# configure logging
 logging.basicConfig(level=logging.INFO)
-# Attach a Cloud Logging handler to the root logger
+# attach a Cloud Logging handler to the root logger
 log_client = cloud_logging.Client()
 log_client.setup_logging()
 
@@ -34,7 +33,7 @@ def load_models():
 
 def get_gemini_pro_text_response(
     model: GenerativeModel,
-    prompt: str,
+    contents: str,
     generation_config: GenerationConfig,
     stream: bool = True,
 ):
@@ -62,7 +61,6 @@ def get_gemini_pro_text_response(
             final_response.append("")
             continue
     return " ".join(final_response)
-
 
 st.header("Vertex AI Gemini API", divider="gray")
 text_model_pro = load_models()
@@ -103,13 +101,18 @@ ingredient_3 = st.text_input(
 # Task 2.5
 # Complete Streamlit framework code for the user interface, add the wine preference radio button to the interface.
 # https://docs.streamlit.io/library/api-reference/widgets/st.radio
-wine = st.radio (
-    "What wine do you prefer?\n\n", ["Red", "White", "None"], key="wine", horizontal=True
+# Around line 104
+wine = st.radio(
+"What is your customer's wine preference?",
+["Red", "White", "None"],
+index=None,
 )
+
 
 max_output_tokens = 2048
 
-
+# Task 2.6
+# Modify this prompt with the custom chef prompt.
 prompt = f"""I am a Chef.  I need to create {cuisine} \n
 recipes for customers who want {dietary_preference} meals. \n
 However, don't include recipes that use ingredients with the customer's {allergy} allergy. \n
@@ -126,7 +129,6 @@ Then include the wine paring for each recommendation.
 At the end of the recommendation provide the calories associated with the meal
 and the nutritional facts.
 """
-
 
 config = {
     "temperature": 0.8,
