@@ -107,8 +107,7 @@ wine = st.radio (
 
 max_output_tokens = 2048
 
-# Task 2.6
-# Modify this prompt with the custom chef prompt.
+
 prompt = f"""I am a Chef.  I need to create {cuisine} \n
 recipes for customers who want {dietary_preference} meals. \n
 However, don't include recipes that use ingredients with the customer's {allergy} allergy. \n
