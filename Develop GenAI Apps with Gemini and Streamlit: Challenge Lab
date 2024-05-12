@@ -1,53 +1,95 @@
-export REGION=
+
+run the command in terminal
+
+gsutil cp gs://spls/gsp517/prompt.ipynb .
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Modify prompt.ipynb
+
+1) modify project_id and region in cell 3
+2)  paste following in cell 5
+
+%%bash
+ 
+# Task 1.4
+# Use cURL to test a prompt with the API, by modifying prompt with the prompt from the lab guide.
+ 
+MODEL_ID="gemini-pro"
+ 
+curl -X POST \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+-H "Content-Type: application/json" \
+https://${API_ENDPOINT}/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:streamGenerateContent \
+-d '{
+"contents": {
+"role": "USER",
+"parts": { "text": "I am a Chef. I need to create Japanese recipes for customers who want low sodium meals. However, I do not want to include recipes that use ingredients associated with a peanuts food allergy. I have ahi tuna, fresh ginger, and edamame in my kitchen and other ingredients. The customer wine preference is red. Please provide some for meal recommendations. For each recommendation include preparation instructions, time to prepare and the recipe title at the begining of the response. Then include the wine paring for each recommendation. At the end of the recommendation provide the calories associated with the meal and the nutritional facts." }
+}
+}'
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------------------
+run commands in cloudshell
 
-
-# List available authentication configurations
-gcloud auth list
-
-# Enable Google Cloud Run API
-gcloud services enable run.googleapis.com
-
-# Clone the repository for the generative AI project
 git clone https://github.com/GoogleCloudPlatform/generative-ai.git
-
-# Navigate to the directory containing the sample application for Gemini Streamlit on Cloud Run
 cd generative-ai/gemini/sample-apps/gemini-streamlit-cloudrun
-
-# Copy the chef.py file from Cloud Storage
 gsutil cp gs://spls/gsp517/chef.py .
 
-# Remove existing Dockerfile and chef.py files
-rm -rf Dockerfile chef.py
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Download Dockerfile from GitHub
-wget https://github.com/DhruvChaurasia3418/Develop-GenAI-Apps-with-Gemini-and-Streamlit-Challenge-Lab/blob/f1e63282dc7b964085f23f653592d3bd67d0a493/Dockerfile.txt
+open chef.py file and paste the code form the file provided on this link
 
-# Download chef.py from GitHub
-wget https://github.com/DhruvChaurasia3418/Develop-GenAI-Apps-with-Gemini-and-Streamlit-Challenge-Lab/blob/377086d0c36f4c76560d5699dd839659fb31a9a4/chef.py
+save the file
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Rename Dockerfile.txt to Dockerfile
-mv Dockerfile.txt Dockerfile
 
-# Copy chef.py to Cloud Storage bucket associated with the project
-gcloud storage cp chef.py gs://$DEVSHELL_PROJECT_ID-generative-ai/
+export PROJECT_ID=$(gcloud config get-value project)
+gcloud storage cp chef.py gs://$PROJECT_ID-generative-ai/
 
-# Set the project ID as an environment variable
-export PROJECT="$DEVSHELL_PROJECT_ID"
-
-# Create a virtual environment named gemini-streamlit
+cd generative-ai/gemini/sample-apps/gemini-streamlit-cloudrun
 python3 -m venv gemini-streamlit
 source gemini-streamlit/bin/activate
+pip install -r requirements.txt
 
-# Install dependencies from requirements.txt
-python3 -m pip install -r requirements.txt
 
-# Run the Streamlit application
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+project=""
+REGION=""
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 streamlit run chef.py \
-  --browser.serverAddress=localhost \
-  --server.enableCORS=false \
-  --server.enableXsrfProtection=false \
-  --server.port 8080
+--browser.serverAddress=localhost \
+--server.enableCORS=false \
+--server.enableXsrfProtection=false \
+--server.port 8080
+
+
+visit site
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Modify docker file  
+On or around line 10, modify the code so that it uses chef.py, instead of app.py. The result should look like:
+ 
+ENTRYPOINT ["streamlit", "run", "chef.py", "--server.port=8080", "--server.address=0.0.0.0"]
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+AR_REPO='chef-repo'
+SERVICE_NAME='chef-streamlit-app'
+gcloud artifacts repositories create "$AR_REPO" --location="$REGION" --repository-format=Docker
+gcloud builds submit --tag "$REGION-docker.pkg.dev/$PROJECT/$AR_REPO/$SERVICE_NAME"
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+gcloud run deploy "$SERVICE_NAME" \
+--port=8080 \
+--image="$REGION-docker.pkg.dev/$PROJECT/$AR_REPO/$SERVICE_NAME" \
+--allow-unauthenticated \
+--region=$REGION \
+--platform=managed  \
+--project=$PROJECT \
+--set-env-vars=PROJECT=$PROJECT,REGION=$REGION
+
