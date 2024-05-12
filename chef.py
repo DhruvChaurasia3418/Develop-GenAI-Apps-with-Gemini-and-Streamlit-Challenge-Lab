@@ -20,8 +20,8 @@ logging.basicConfig(level=logging.INFO)
 log_client = cloud_logging.Client()
 log_client.setup_logging()
 
-PROJECT_ID = "qwiklabs-gcp-03-650c8e2ffcc6"  # Your Google Cloud Project ID
-LOCATION = "us-central1"  # Your Google Cloud Project Region
+PROJECT_ID = os.environ.get("GCP_PROJECT")  # Your Google Cloud Project ID
+LOCATION = os.environ.get("GCP_REGION")  # Your Google Cloud Project Region
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
 
