@@ -28,18 +28,48 @@ https://${API_ENDPOINT}/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishe
 }
 }'
 
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 run commands in cloudshell
 
 git clone https://github.com/GoogleCloudPlatform/generative-ai.git
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 cd generative-ai/gemini/sample-apps/gemini-streamlit-cloudrun
 gsutil cp gs://spls/gsp517/chef.py .
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 open chef.py file and paste the code form the file provided on this link
+
+# Around line 104
+wine = st.radio(
+"What is your customer's wine preference?",
+["Red", "White", "None"],
+index=None,
+)
+# End of Task 4.
+
+save the file 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+prompt = f"""I am a Chef.  I need to create {cuisine} \n
+recipes for customers who want {dietary_preference} meals. \n
+However, don't include recipes that use ingredients with the customer's {allergy} allergy. \n
+I have {ingredient_1}, \n
+{ingredient_2}, \n
+and {ingredient_3} \n
+in my kitchen and other ingredients. \n
+The customer's wine preference is {wine} \n
+Please provide some for meal recommendations.
+For each recommendation include preparation instructions,
+time to prepare
+and the recipe title at the begining of the response.
+Then include the wine paring for each recommendation.
+At the end of the recommendation provide the calories associated with the meal
+and the nutritional facts.
+"""
 
 save the file
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -48,7 +78,11 @@ save the file
 export PROJECT_ID=$(gcloud config get-value project)
 gcloud storage cp chef.py gs://$PROJECT_ID-generative-ai/
 
+
+
 cd generative-ai/gemini/sample-apps/gemini-streamlit-cloudrun
+
+
 python3 -m venv gemini-streamlit
 source gemini-streamlit/bin/activate
 pip install -r requirements.txt
@@ -56,8 +90,8 @@ pip install -r requirements.txt
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-project=""
-REGION=""
+PROJECT='qwiklabs-gcp-03-715f0dacd315'
+REGION='us-central1'
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
