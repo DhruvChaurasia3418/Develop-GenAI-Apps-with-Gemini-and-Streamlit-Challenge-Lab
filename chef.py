@@ -14,9 +14,10 @@ from datetime import (
     date,
     timedelta,
 )
-# configure logging
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
-# attach a Cloud Logging handler to the root logger
+# Attach a Cloud Logging handler to the root logger
 log_client = cloud_logging.Client()
 log_client.setup_logging()
 
@@ -33,7 +34,7 @@ def load_models():
 
 def get_gemini_pro_text_response(
     model: GenerativeModel,
-    contents: str,
+    prompt: str,
     generation_config: GenerationConfig,
     stream: bool = True,
 ):
@@ -61,6 +62,7 @@ def get_gemini_pro_text_response(
             final_response.append("")
             continue
     return " ".join(final_response)
+
 
 st.header("Vertex AI Gemini API", divider="gray")
 text_model_pro = load_models()
