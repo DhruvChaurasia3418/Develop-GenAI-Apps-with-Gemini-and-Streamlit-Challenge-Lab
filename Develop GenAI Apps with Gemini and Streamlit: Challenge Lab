@@ -1,0 +1,53 @@
+export REGION=
+
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+# List available authentication configurations
+gcloud auth list
+
+# Enable Google Cloud Run API
+gcloud services enable run.googleapis.com
+
+# Clone the repository for the generative AI project
+git clone https://github.com/GoogleCloudPlatform/generative-ai.git
+
+# Navigate to the directory containing the sample application for Gemini Streamlit on Cloud Run
+cd generative-ai/gemini/sample-apps/gemini-streamlit-cloudrun
+
+# Copy the chef.py file from Cloud Storage
+gsutil cp gs://spls/gsp517/chef.py .
+
+# Remove existing Dockerfile and chef.py files
+rm -rf Dockerfile chef.py
+
+# Download Dockerfile from GitHub
+wget https://github.com/DhruvChaurasia3418/Develop-GenAI-Apps-with-Gemini-and-Streamlit-Challenge-Lab/blob/f1e63282dc7b964085f23f653592d3bd67d0a493/Dockerfile.txt
+
+# Download chef.py from GitHub
+wget https://github.com/DhruvChaurasia3418/Develop-GenAI-Apps-with-Gemini-and-Streamlit-Challenge-Lab/blob/377086d0c36f4c76560d5699dd839659fb31a9a4/chef.py
+
+# Rename Dockerfile.txt to Dockerfile
+mv Dockerfile.txt Dockerfile
+
+# Copy chef.py to Cloud Storage bucket associated with the project
+gcloud storage cp chef.py gs://$DEVSHELL_PROJECT_ID-generative-ai/
+
+# Set the project ID as an environment variable
+export PROJECT="$DEVSHELL_PROJECT_ID"
+
+# Create a virtual environment named gemini-streamlit
+python3 -m venv gemini-streamlit
+source gemini-streamlit/bin/activate
+
+# Install dependencies from requirements.txt
+python3 -m pip install -r requirements.txt
+
+# Run the Streamlit application
+streamlit run chef.py \
+  --browser.serverAddress=localhost \
+  --server.enableCORS=false \
+  --server.enableXsrfProtection=false \
+  --server.port 8080
